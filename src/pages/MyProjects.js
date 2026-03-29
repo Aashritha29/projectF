@@ -133,29 +133,24 @@ function MyProjects() {
     setTimeout(() => setToast(null), 3000);
   };
 
-useEffect(() => {
-  const fetchProjects = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API_BASE}/api/projects/student/${studentId}`);
-      setProjects(res.data);
-    } catch {
-      showToast("Failed to load projects.", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchProjects = async () => {
+  setLoading(true);
+  try {
+    const res = await axios.get(`${API_BASE}/api/projects/student/${studentId}`);
+    setProjects(res.data);
+  } catch {
+    showToast("Failed to load projects.", "error");
+  } finally {
+    setLoading(false);
+  }
+};
 
+// ✅ Single useEffect is enough
+useEffect(() => {
   fetchProjects();
 }, []);
 
-  // ✅ useEffect comes AFTER fetchProjects is defined
-  useEffect(() => {
-  const load = async () => {
-    await fetchProjects();
-  };
-  load();
-}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   const startEdit = (p) => {
     setEditId(p.id);

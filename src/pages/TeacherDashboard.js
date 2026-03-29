@@ -61,29 +61,23 @@ function TeacherDashboard() {
   };
 
   // ✅ fetchProjects declared before useEffect
-useEffect(() => {
-  const fetchProjects = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API_BASE}/api/projects`);
-      setProjects(res.data);
-    } catch {
-      showToast("Failed to load projects.", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchProjects = async () => {
+  setLoading(true);
+  try {
+    const res = await axios.get(`${API_BASE}/api/projects`);
+    setProjects(res.data);
+  } catch {
+    showToast("Failed to load projects.", "error");
+  } finally {
+    setLoading(false);
+  }
+};
 
+useEffect(() => {
   fetchProjects();
 }, []);
 
-  // ✅ useEffect comes AFTER fetchProjects
-  useEffect(() => {
-  const load = async () => {
-    await fetchProjects();
-  };
-  load();
-}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   const markUnderReview = async (id) => {
     try {
