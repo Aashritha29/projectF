@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles.css";
 import { useCallback } from "react";
+const studentId = localStorage.getItem("studentId");
 
 function getBadge(status) {
   if (status === "SUBMITTED")    return <span className="badge badge-submitted">Submitted</span>;
