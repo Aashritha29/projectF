@@ -147,8 +147,11 @@ function MyProjects() {
 
   // ✅ useEffect comes AFTER fetchProjects is defined
   useEffect(() => {
-    fetchProjects();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const load = async () => {
+    await fetchProjects();
+  };
+  load();
+}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startEdit = (p) => {
     setEditId(p.id);

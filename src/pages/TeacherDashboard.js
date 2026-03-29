@@ -75,8 +75,11 @@ function TeacherDashboard() {
 
   // ✅ useEffect comes AFTER fetchProjects
   useEffect(() => {
-    fetchProjects();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const load = async () => {
+    await fetchProjects();
+  };
+  load();
+}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const markUnderReview = async (id) => {
     try {
