@@ -54,9 +54,11 @@ function ScoreBreakdown({ ideaScore, codeScore, docScore, implScore }) {
         const pct = b.score != null ? Math.round((b.score / b.max) * 100) : 0;
         return (
           <div key={b.label}>
-            <div style={{ display: "flex", justifyContent: "space-between",
+            <div style={{
+              display: "flex", justifyContent: "space-between",
               fontSize: ".78rem", fontWeight: 600, marginBottom: "4px",
-              fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+              fontFamily: "var(--font-display)", color: "var(--text-primary)"
+            }}>
               <span>{b.label}</span>
               <span style={{ color: b.color }}>
                 {b.score != null ? b.score : "—"}
@@ -92,8 +94,7 @@ function SuggestionsList({ suggestions }) {
       }}>
         ✨ AI Improvement Suggestions
       </p>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0,
-        display: "flex", flexDirection: "column", gap: "7px" }}>
+      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "7px" }}>
         {items.map((tip, i) => (
           <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "9px",
             fontSize: ".85rem", color: "var(--text-primary)", lineHeight: 1.5 }}>
@@ -126,26 +127,28 @@ function MyProjects() {
   const [saving,   setSaving]   = useState(false);
   const [toast,    setToast]    = useState(null);
 
-useEffect(() => {
+  // ✅ Declared BEFORE useEffect so ESLint doesn't complain
+  const showToast = (msg, type = "info") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/api/projects`);
+      const res = await axios.get(`${API_BASE}/api/projects/student/${studentId}`);
       setProjects(res.data);
-    } catch (err) {
+    } catch {
       showToast("Failed to load projects.", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  fetchProjects();
-}, []);
-
-  const showToast = (msg, type = "info") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3000);
-  };
+  // ✅ useEffect comes AFTER fetchProjects is defined
+  useEffect(() => {
+    fetchProjects();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const startEdit = (p) => {
     setEditId(p.id);
@@ -159,8 +162,11 @@ useEffect(() => {
       showToast("Project updated.", "success");
       setEditId(null);
       fetchProjects();
-    } catch { showToast("Update failed.", "error"); }
-    finally  { setSaving(false); }
+    } catch {
+      showToast("Update failed.", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleLogout = () => { localStorage.clear(); navigate("/"); };
@@ -181,9 +187,13 @@ useEffect(() => {
             <div className="topbar-avatar">{initials}</div>
             <span>{name}</span>
           </div>
-          <button className="btn btn-ghost btn-sm"
+          <button
+            className="btn btn-ghost btn-sm"
             style={{ color: "rgba(255,255,255,.75)", borderColor: "rgba(255,255,255,.2)" }}
-            onClick={handleLogout}>Sign Out</button>
+            onClick={handleLogout}
+          >
+            Sign Out
+          </button>
         </div>
       </header>
 
@@ -228,9 +238,12 @@ useEffect(() => {
                   alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
                   <div style={{ flex: 1 }}>
                     {editId === p.id ? (
-                      <input className="field-input" value={editData.title}
+                      <input
+                        className="field-input"
+                        value={editData.title}
                         onChange={e => setEditData({ ...editData, title: e.target.value })}
-                        style={{ fontSize: "1.05rem", fontWeight: 700, marginBottom: "6px" }} />
+                        style={{ fontSize: "1.05rem", fontWeight: 700, marginBottom: "6px" }}
+                      />
                     ) : (
                       <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.08rem",
                         fontWeight: 700, color: "var(--text-primary)", marginBottom: "6px" }}>
@@ -240,7 +253,9 @@ useEffect(() => {
                     <div className="info-chips">
                       {p.rollNumber && <div className="info-chip">Roll No <span>{p.rollNumber}</span></div>}
                       {p.submissionDate && (
-                        <div className="info-chip">Submitted <span>{new Date(p.submissionDate).toLocaleDateString()}</span></div>
+                        <div className="info-chip">
+                          Submitted <span>{new Date(p.submissionDate).toLocaleDateString()}</span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -270,8 +285,11 @@ useEffect(() => {
                       Project Link
                     </p>
                     {editId === p.id ? (
-                      <input className="field-input" value={editData.githubLink}
-                        onChange={e => setEditData({ ...editData, githubLink: e.target.value })} />
+                      <input
+                        className="field-input"
+                        value={editData.githubLink}
+                        onChange={e => setEditData({ ...editData, githubLink: e.target.value })}
+                      />
                     ) : (
                       <a href={p.githubLink} target="_blank" rel="noreferrer" className="table-link">
                         🔗 Open Project
@@ -301,15 +319,19 @@ useEffect(() => {
                     </p>
                     <ScoreBreakdown
                       ideaScore={p.ideaScore} codeScore={p.codeScore}
-                      docScore={p.docScore}   implScore={p.implScore} />
+                      docScore={p.docScore}   implScore={p.implScore}
+                    />
                   </div>
                 )}
 
                 {editId === p.id && (
                   <div className="field-group" style={{ marginTop: "12px" }}>
                     <label className="field-label">Abstract</label>
-                    <textarea className="field-input" value={editData.abstractText}
-                      onChange={e => setEditData({ ...editData, abstractText: e.target.value })} />
+                    <textarea
+                      className="field-input"
+                      value={editData.abstractText}
+                      onChange={e => setEditData({ ...editData, abstractText: e.target.value })}
+                    />
                   </div>
                 )}
 

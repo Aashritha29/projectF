@@ -44,6 +44,7 @@ function SimilarityBadge({ warning }) {
 
 function TeacherDashboard() {
   const navigate = useNavigate();
+
   const [projects,    setProjects]    = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [aiLoading,   setAiLoading]   = useState({});
@@ -53,45 +54,53 @@ function TeacherDashboard() {
   const [evalModal,   setEvalModal]   = useState(null);
   const [filters,     setFilters]     = useState({ status: "", branch: "", section: "", search: "" });
 
-useEffect(() => {
+  // ✅ showToast declared first — used by fetchProjects
+  const showToast = (msg, type = "info") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  // ✅ fetchProjects declared before useEffect
   const fetchProjects = async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${API_BASE}/api/projects`);
       setProjects(res.data);
-    } catch (err) {
+    } catch {
       showToast("Failed to load projects.", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  fetchProjects();
-}, []);
-
-  const showToast = (msg, type = "info") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 4000);
-  };
+  // ✅ useEffect comes AFTER fetchProjects
+  useEffect(() => {
+    fetchProjects();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const markUnderReview = async (id) => {
     try {
       await axios.put(`${API_BASE}/api/projects/review/${id}`);
       showToast("Marked as Under Review.", "success");
       fetchProjects();
-    } catch { showToast("Failed to update status.", "error"); }
+    } catch {
+      showToast("Failed to update status.", "error");
+    }
   };
 
   const evaluateProject = async () => {
     if (!evalModal) return;
     try {
       await axios.put(`${API_BASE}/api/projects/evaluate/${evalModal.id}`, {
-        marks: parseInt(evalModal.marks), remarks: evalModal.remarks,
+        marks: parseInt(evalModal.marks),
+        remarks: evalModal.remarks,
       });
       showToast("Project evaluated.", "success");
       setEvalModal(null);
       fetchProjects();
-    } catch { showToast("Evaluation failed.", "error"); }
+    } catch {
+      showToast("Evaluation failed.", "error");
+    }
   };
 
   const aiEvaluate = async (id) => {
@@ -123,9 +132,11 @@ useEffect(() => {
   };
 
   const exportCSV = () => {
-    const headers = ["Roll No", "Title", "Branch", "Section", "Status",
-                     "Marks", "Idea/20", "Code/30", "Doc/20", "Impl/30",
-                     "Remarks", "Suggestions", "Similarity Warning", "Submitted"];
+    const headers = [
+      "Roll No", "Title", "Branch", "Section", "Status",
+      "Marks", "Idea/20", "Code/30", "Doc/20", "Impl/30",
+      "Remarks", "Suggestions", "Similarity Warning", "Submitted"
+    ];
     const rows = filtered.map(p => [
       p.rollNumber, `"${p.title}"`, p.branch, p.section, p.status,
       p.marks ?? "", p.ideaScore ?? "", p.codeScore ?? "", p.docScore ?? "", p.implScore ?? "",
@@ -137,7 +148,7 @@ useEffect(() => {
     const csv  = [headers, ...rows].map(r => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url  = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a    = document.createElement("a");
     a.href = url; a.download = "projects.csv"; a.click();
     URL.revokeObjectURL(url);
     showToast("CSV exported.", "success");
@@ -172,9 +183,13 @@ useEffect(() => {
             <div className="topbar-avatar">TC</div>
             <span>Teacher</span>
           </div>
-          <button className="btn btn-ghost btn-sm"
+          <button
+            className="btn btn-ghost btn-sm"
             style={{ color: "rgba(255,255,255,.75)", borderColor: "rgba(255,255,255,.2)" }}
-            onClick={() => navigate("/")}>Sign Out</button>
+            onClick={() => navigate("/")}
+          >
+            Sign Out
+          </button>
         </div>
       </header>
 
@@ -195,13 +210,19 @@ useEffect(() => {
             </h3>
             <div className="field-group">
               <label className="field-label">Marks (out of 100)</label>
-              <input className="field-input" type="number" min="0" max="100" placeholder="e.g. 82"
-                value={evalModal.marks} onChange={e => setEvalModal({ ...evalModal, marks: e.target.value })} />
+              <input
+                className="field-input" type="number" min="0" max="100" placeholder="e.g. 82"
+                value={evalModal.marks}
+                onChange={e => setEvalModal({ ...evalModal, marks: e.target.value })}
+              />
             </div>
             <div className="field-group">
               <label className="field-label">Remarks</label>
-              <textarea className="field-input" placeholder="Write your feedback…"
-                value={evalModal.remarks} onChange={e => setEvalModal({ ...evalModal, remarks: e.target.value })} />
+              <textarea
+                className="field-input" placeholder="Write your feedback…"
+                value={evalModal.remarks}
+                onChange={e => setEvalModal({ ...evalModal, remarks: e.target.value })}
+              />
             </div>
             <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
               <button className="btn btn-primary" style={{ flex: 1 }} onClick={evaluateProject}>
@@ -225,10 +246,10 @@ useEffect(() => {
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "14px", marginBottom: "22px" }}>
           {[
-            { label: "Total",        value: total,     icon: "📁", cls: "c1" },
-            { label: "Submitted",    value: submitted, icon: "📤", cls: "c2" },
-            { label: "Under Review", value: review,    icon: "🔍", cls: "c3" },
-            { label: "Evaluated",    value: evaluated, icon: "✅", cls: "c4" },
+            { label: "Total",        value: total,     icon: "📁", cls: "c1", warn: false },
+            { label: "Submitted",    value: submitted, icon: "📤", cls: "c2", warn: false },
+            { label: "Under Review", value: review,    icon: "🔍", cls: "c3", warn: false },
+            { label: "Evaluated",    value: evaluated, icon: "✅", cls: "c4", warn: false },
             { label: "AI Flagged",   value: flagged,   icon: "⚠️", cls: "c1", warn: flagged > 0 },
           ].map(s => (
             <div className="stat-card" key={s.label}
@@ -251,8 +272,11 @@ useEffect(() => {
         <div className="filter-bar">
           <div className="filter-group" style={{ flex: 2, minWidth: 180 }}>
             <label className="filter-label">Search</label>
-            <input className="filter-input" placeholder="Roll number or title…"
-              value={filters.search} onChange={e => setFilters({ ...filters, search: e.target.value })} />
+            <input
+              className="filter-input" placeholder="Roll number or title…"
+              value={filters.search}
+              onChange={e => setFilters({ ...filters, search: e.target.value })}
+            />
           </div>
           <div className="filter-group">
             <label className="filter-label">Status</label>
@@ -267,12 +291,16 @@ useEffect(() => {
           <div className="filter-group">
             <label className="filter-label">Branch</label>
             <input className="filter-input" placeholder="e.g. CSE"
-              value={filters.branch} onChange={e => setFilters({ ...filters, branch: e.target.value })} />
+              value={filters.branch}
+              onChange={e => setFilters({ ...filters, branch: e.target.value })}
+            />
           </div>
           <div className="filter-group">
             <label className="filter-label">Section</label>
             <input className="filter-input" placeholder="e.g. A"
-              value={filters.section} onChange={e => setFilters({ ...filters, section: e.target.value })} />
+              value={filters.section}
+              onChange={e => setFilters({ ...filters, section: e.target.value })}
+            />
           </div>
           <button className="btn btn-ghost btn-sm" style={{ alignSelf: "flex-end" }}
             onClick={() => setFilters({ status: "", branch: "", section: "", search: "" })}>
@@ -313,8 +341,11 @@ useEffect(() => {
               <tbody>
                 {filtered.map(p => (
                   <>
-                    <tr key={p.id} style={{ cursor: "pointer" }}
-                      onClick={() => setExpandedRow(expandedRow === p.id ? null : p.id)}>
+                    <tr
+                      key={p.id}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setExpandedRow(expandedRow === p.id ? null : p.id)}
+                    >
                       <td style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
                         {p.rollNumber || <span style={{ color: "var(--text-muted)" }}>—</span>}
                       </td>
@@ -326,13 +357,19 @@ useEffect(() => {
                         <strong>{p.branch || "—"}</strong> / {p.section || "—"}
                       </td>
                       <td onClick={e => e.stopPropagation()}>
-                        <a href={p.githubLink} target="_blank" rel="noreferrer" className="table-link">🔗 Open</a>
+                        <a href={p.githubLink} target="_blank" rel="noreferrer" className="table-link">
+                          🔗 Open
+                        </a>
                       </td>
                       <td>{getBadge(p.status)}</td>
                       <td>
                         {p.marks != null
-                          ? <span className="marks-value">{p.marks}<span style={{ fontSize: ".7rem", fontWeight: 400, color: "var(--text-muted)" }}>/100</span></span>
-                          : <span style={{ color: "var(--text-muted)", fontSize: ".82rem" }}>—</span>}
+                          ? <span className="marks-value">
+                              {p.marks}
+                              <span style={{ fontSize: ".7rem", fontWeight: 400, color: "var(--text-muted)" }}>/100</span>
+                            </span>
+                          : <span style={{ color: "var(--text-muted)", fontSize: ".82rem" }}>—</span>
+                        }
                       </td>
                       <td style={{ minWidth: 140 }}>
                         {p.status === "EVALUATED" && p.ideaScore != null ? (
@@ -342,7 +379,9 @@ useEffect(() => {
                             <MiniScoreBar score={p.docScore}  max={20} color="var(--blue-3)" />
                             <MiniScoreBar score={p.implScore} max={30} color="var(--blue-4)" />
                           </div>
-                        ) : <span style={{ color: "var(--text-muted)", fontSize: ".8rem" }}>—</span>}
+                        ) : (
+                          <span style={{ color: "var(--text-muted)", fontSize: ".8rem" }}>—</span>
+                        )}
                       </td>
                       <td style={{ fontSize: ".8rem", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
                         {p.submissionDate ? new Date(p.submissionDate).toLocaleDateString() : "—"}
@@ -356,26 +395,39 @@ useEffect(() => {
                           )}
                           {p.status !== "EVALUATED" && (
                             <>
-                              <button className="btn btn-primary btn-sm"
-                                onClick={() => setEvalModal({ id: p.id, marks: "", remarks: "" })}>
+                              <button
+                                className="btn btn-primary btn-sm"
+                                onClick={() => setEvalModal({ id: p.id, marks: "", remarks: "" })}
+                              >
                                 Evaluate
                               </button>
-                              <button className="btn btn-accent btn-sm"
-                                onClick={() => aiEvaluate(p.id)} disabled={aiLoading[p.id]}>
+                              <button
+                                className="btn btn-accent btn-sm"
+                                onClick={() => aiEvaluate(p.id)}
+                                disabled={aiLoading[p.id]}
+                              >
                                 {aiLoading[p.id]
-                                  ? <span className="ai-loading"><div className="ai-dot" /><div className="ai-dot" /><div className="ai-dot" /></span>
+                                  ? <span className="ai-loading">
+                                      <div className="ai-dot" /><div className="ai-dot" /><div className="ai-dot" />
+                                    </span>
                                   : "✨ AI"}
                               </button>
                             </>
                           )}
-                          <button className="btn btn-ghost btn-sm" title="Re-run similarity check"
-                            onClick={() => recheckSimilarity(p.id)} disabled={simLoading[p.id]}>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            title="Re-run similarity check"
+                            onClick={() => recheckSimilarity(p.id)}
+                            disabled={simLoading[p.id]}
+                          >
                             {simLoading[p.id]
                               ? <span className="ai-loading"><div className="ai-dot" /><div className="ai-dot" /></span>
                               : "🔍"}
                           </button>
                           {p.status === "EVALUATED" && (
-                            <span style={{ fontSize: ".8rem", color: "var(--success)", fontWeight: 600, padding: "6px 2px" }}>✅ Done</span>
+                            <span style={{ fontSize: ".8rem", color: "var(--success)", fontWeight: 600, padding: "6px 2px" }}>
+                              ✅ Done
+                            </span>
                           )}
                         </div>
                       </td>
