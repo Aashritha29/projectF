@@ -61,6 +61,7 @@ function TeacherDashboard() {
   };
 
   // ✅ fetchProjects declared before useEffect
+useEffect(() => {
   const fetchProjects = async () => {
     setLoading(true);
     try {
@@ -72,6 +73,9 @@ function TeacherDashboard() {
       setLoading(false);
     }
   };
+
+  fetchProjects();
+}, []);
 
   // ✅ useEffect comes AFTER fetchProjects
   useEffect(() => {

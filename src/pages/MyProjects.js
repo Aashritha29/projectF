@@ -133,6 +133,7 @@ function MyProjects() {
     setTimeout(() => setToast(null), 3000);
   };
 
+useEffect(() => {
   const fetchProjects = async () => {
     setLoading(true);
     try {
@@ -144,6 +145,9 @@ function MyProjects() {
       setLoading(false);
     }
   };
+
+  fetchProjects();
+}, []);
 
   // ✅ useEffect comes AFTER fetchProjects is defined
   useEffect(() => {
