@@ -339,150 +339,149 @@ function TeacherDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(p => (
-                  <>
-                    <tr
-                      key={p.id}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => setExpandedRow(expandedRow === p.id ? null : p.id)}
-                    >
-                      <td style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
-                        {p.rollNumber || <span style={{ color: "var(--text-muted)" }}>—</span>}
-                      </td>
-                      <td style={{ maxWidth: 220 }}>
-                        <div style={{ fontWeight: 600, fontSize: ".88rem" }}>{p.title}</div>
-                        <SimilarityBadge warning={p.similarityWarning} />
-                      </td>
-                      <td style={{ fontSize: ".83rem" }}>
-                        <strong>{p.branch || "—"}</strong> / {p.section || "—"}
-                      </td>
-                      <td onClick={e => e.stopPropagation()}>
-                        <a href={p.githubLink} target="_blank" rel="noreferrer" className="table-link">
-                          🔗 Open
-                        </a>
-                      </td>
-                      <td>{getBadge(p.status)}</td>
-                      <td>
-                        {p.marks != null
-                          ? <span className="marks-value">
-                              {p.marks}
-                              <span style={{ fontSize: ".7rem", fontWeight: 400, color: "var(--text-muted)" }}>/100</span>
-                            </span>
-                          : <span style={{ color: "var(--text-muted)", fontSize: ".82rem" }}>—</span>
-                        }
-                      </td>
-                      <td style={{ minWidth: 140 }}>
-                        {p.status === "EVALUATED" && p.ideaScore != null ? (
-                          <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-                            <MiniScoreBar score={p.ideaScore} max={20} color="var(--blue-1)" />
-                            <MiniScoreBar score={p.codeScore} max={30} color="var(--blue-2)" />
-                            <MiniScoreBar score={p.docScore}  max={20} color="var(--blue-3)" />
-                            <MiniScoreBar score={p.implScore} max={30} color="var(--blue-4)" />
-                          </div>
-                        ) : (
-                          <span style={{ color: "var(--text-muted)", fontSize: ".8rem" }}>—</span>
-                        )}
-                      </td>
-                      <td style={{ fontSize: ".8rem", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
-                        {p.submissionDate ? new Date(p.submissionDate).toLocaleDateString() : "—"}
-                      </td>
-                      <td onClick={e => e.stopPropagation()}>
-                        <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
-                          {p.status === "SUBMITTED" && (
-                            <button className="btn btn-outline btn-sm" onClick={() => markUnderReview(p.id)}>
-                              Review
-                            </button>
-                          )}
-                          {p.status !== "EVALUATED" && (
-                            <>
-                              <button
-                                className="btn btn-primary btn-sm"
-                                onClick={() => setEvalModal({ id: p.id, marks: "", remarks: "" })}
-                              >
-                                Evaluate
-                              </button>
-                              <button
-                                className="btn btn-accent btn-sm"
-                                onClick={() => aiEvaluate(p.id)}
-                                disabled={aiLoading[p.id]}
-                              >
-                                {aiLoading[p.id]
-                                  ? <span className="ai-loading">
-                                      <div className="ai-dot" /><div className="ai-dot" /><div className="ai-dot" />
-                                    </span>
-                                  : "✨ AI"}
-                              </button>
-                            </>
-                          )}
-                          <button
-                            className="btn btn-ghost btn-sm"
-                            title="Re-run similarity check"
-                            onClick={() => recheckSimilarity(p.id)}
-                            disabled={simLoading[p.id]}
-                          >
-                            {simLoading[p.id]
-                              ? <span className="ai-loading"><div className="ai-dot" /><div className="ai-dot" /></span>
-                              : "🔍"}
-                          </button>
-                          {p.status === "EVALUATED" && (
-                            <span style={{ fontSize: ".8rem", color: "var(--success)", fontWeight: 600, padding: "6px 2px" }}>
-                              ✅ Done
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
+  {filtered.map(p => (
+    <React.Fragment key={p.id}>
+      <tr
+        style={{ cursor: "pointer" }}
+        onClick={() => setExpandedRow(expandedRow === p.id ? null : p.id)}
+      >
+        <td style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}>
+          {p.rollNumber || <span style={{ color: "var(--text-muted)" }}>—</span>}
+        </td>
+        <td style={{ maxWidth: 220 }}>
+          <div style={{ fontWeight: 600, fontSize: ".88rem" }}>{p.title}</div>
+          <SimilarityBadge warning={p.similarityWarning} />
+        </td>
+        <td style={{ fontSize: ".83rem" }}>
+          <strong>{p.branch || "—"}</strong> / {p.section || "—"}
+        </td>
+        <td onClick={e => e.stopPropagation()}>
+          <a href={p.githubLink} target="_blank" rel="noreferrer" className="table-link">
+            🔗 Open
+          </a>
+        </td>
+        <td>{getBadge(p.status)}</td>
+        <td>
+          {p.marks != null
+            ? <span className="marks-value">
+                {p.marks}
+                <span style={{ fontSize: ".7rem", fontWeight: 400, color: "var(--text-muted)" }}>/100</span>
+              </span>
+            : <span style={{ color: "var(--text-muted)", fontSize: ".82rem" }}>—</span>
+          }
+        </td>
+        <td style={{ minWidth: 140 }}>
+          {p.status === "EVALUATED" && p.ideaScore != null ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+              <MiniScoreBar score={p.ideaScore} max={20} color="var(--blue-1)" />
+              <MiniScoreBar score={p.codeScore} max={30} color="var(--blue-2)" />
+              <MiniScoreBar score={p.docScore}  max={20} color="var(--blue-3)" />
+              <MiniScoreBar score={p.implScore} max={30} color="var(--blue-4)" />
+            </div>
+          ) : (
+            <span style={{ color: "var(--text-muted)", fontSize: ".8rem" }}>—</span>
+          )}
+        </td>
+        <td style={{ fontSize: ".8rem", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
+          {p.submissionDate ? new Date(p.submissionDate).toLocaleDateString() : "—"}
+        </td>
+        <td onClick={e => e.stopPropagation()}>
+          <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
+            {p.status === "SUBMITTED" && (
+              <button className="btn btn-outline btn-sm" onClick={() => markUnderReview(p.id)}>
+                Review
+              </button>
+            )}
+            {p.status !== "EVALUATED" && (
+              <>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setEvalModal({ id: p.id, marks: "", remarks: "" })}
+                >
+                  Evaluate
+                </button>
+                <button
+                  className="btn btn-accent btn-sm"
+                  onClick={() => aiEvaluate(p.id)}
+                  disabled={aiLoading[p.id]}
+                >
+                  {aiLoading[p.id]
+                    ? <span className="ai-loading">
+                        <div className="ai-dot" /><div className="ai-dot" /><div className="ai-dot" />
+                      </span>
+                    : "✨ AI"}
+                </button>
+              </>
+            )}
+            <button
+              className="btn btn-ghost btn-sm"
+              title="Re-run similarity check"
+              onClick={() => recheckSimilarity(p.id)}
+              disabled={simLoading[p.id]}
+            >
+              {simLoading[p.id]
+                ? <span className="ai-loading"><div className="ai-dot" /><div className="ai-dot" /></span>
+                : "🔍"}
+            </button>
+            {p.status === "EVALUATED" && (
+              <span style={{ fontSize: ".8rem", color: "var(--success)", fontWeight: 600, padding: "6px 2px" }}>
+                ✅ Done
+              </span>
+            )}
+          </div>
+        </td>
+      </tr>
 
-                    {expandedRow === p.id && (
-                      <tr key={`${p.id}-exp`} style={{ background: "rgba(0,150,199,.03)" }}>
-                        <td colSpan={9} style={{ padding: "0 16px 16px" }}>
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", paddingTop: "12px" }}>
-                            {p.remarks && (
-                              <div>
-                                <p style={{ fontSize: ".72rem", fontWeight: 700, textTransform: "uppercase",
-                                  letterSpacing: ".07em", color: "var(--blue-3)", fontFamily: "var(--font-display)", marginBottom: "7px" }}>
-                                  AI Review
-                                </p>
-                                <p style={{ fontSize: ".87rem", color: "var(--text-primary)", lineHeight: 1.6 }}>
-                                  {p.remarks}
-                                </p>
-                              </div>
-                            )}
-                            {p.suggestions && (
-                              <div>
-                                <p style={{ fontSize: ".72rem", fontWeight: 700, textTransform: "uppercase",
-                                  letterSpacing: ".07em", color: "var(--blue-2)", fontFamily: "var(--font-display)", marginBottom: "7px" }}>
-                                  ✨ AI Suggestions
-                                </p>
-                                <ul style={{ listStyle: "none", padding: 0, margin: 0,
-                                  display: "flex", flexDirection: "column", gap: "6px" }}>
-                                  {p.suggestions.split("|").map(s => s.trim()).filter(Boolean).map((tip, i) => (
-                                    <li key={i} style={{ display: "flex", gap: "8px",
-                                      fontSize: ".84rem", color: "var(--text-primary)", lineHeight: 1.5 }}>
-                                      <span style={{
-                                        width: "18px", height: "18px", borderRadius: "50%",
-                                        background: "var(--blue-1)", color: "#fff",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        fontSize: ".65rem", fontWeight: 700, flexShrink: 0
-                                      }}>{i + 1}</span>
-                                      {tip}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                            {!p.remarks && !p.suggestions && (
-                              <p style={{ color: "var(--text-muted)", fontSize: ".85rem", gridColumn: "1/-1" }}>
-                                No AI evaluation yet. Click ✨ AI to run evaluation.
-                              </p>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-              </tbody>
+      {expandedRow === p.id && (
+        <tr style={{ background: "rgba(0,150,199,.03)" }}>
+          <td colSpan={9} style={{ padding: "0 16px 16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", paddingTop: "12px" }}>
+              {p.remarks && (
+                <div>
+                  <p style={{ fontSize: ".72rem", fontWeight: 700, textTransform: "uppercase",
+                    letterSpacing: ".07em", color: "var(--blue-3)", fontFamily: "var(--font-display)", marginBottom: "7px" }}>
+                    AI Review
+                  </p>
+                  <p style={{ fontSize: ".87rem", color: "var(--text-primary)", lineHeight: 1.6 }}>
+                    {p.remarks}
+                  </p>
+                </div>
+              )}
+              {p.suggestions && (
+                <div>
+                  <p style={{ fontSize: ".72rem", fontWeight: 700, textTransform: "uppercase",
+                    letterSpacing: ".07em", color: "var(--blue-2)", fontFamily: "var(--font-display)", marginBottom: "7px" }}>
+                    ✨ AI Suggestions
+                  </p>
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0,
+                    display: "flex", flexDirection: "column", gap: "6px" }}>
+                    {p.suggestions.split("|").map(s => s.trim()).filter(Boolean).map((tip, i) => (
+                      <li key={i} style={{ display: "flex", gap: "8px",
+                        fontSize: ".84rem", color: "var(--text-primary)", lineHeight: 1.5 }}>
+                        <span style={{
+                          width: "18px", height: "18px", borderRadius: "50%",
+                          background: "var(--blue-1)", color: "#fff",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: ".65rem", fontWeight: 700, flexShrink: 0
+                        }}>{i + 1}</span>
+                        {tip}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {!p.remarks && !p.suggestions && (
+                <p style={{ color: "var(--text-muted)", fontSize: ".85rem", gridColumn: "1/-1" }}>
+                  No AI evaluation yet. Click ✨ AI to run evaluation.
+                </p>
+              )}
+            </div>
+          </td>
+        </tr>
+      )}
+    </React.Fragment>
+  ))}
+</tbody>
             </table>
           )}
         </div>
