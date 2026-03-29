@@ -68,7 +68,16 @@ function TeacherDashboard() {
 const fetchProjects = useCallback(async () => {
   setLoading(true);
   try {
-    const res = await axios.get(`${API_BASE}/api/projects/student/${studentId}`);
+    const token = localStorage.getItem("token"); // ✅ added
+
+    const res = await axios.get(`${API_BASE}/api/projects/student/${studentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ added
+        },
+      }
+    );
+
     setProjects(res.data);
   } catch {
     showToast("Failed to load projects.", "error");

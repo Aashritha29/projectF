@@ -28,6 +28,7 @@ function Login() {
     if (role === "teacher") {
       setTimeout(() => {
         if (email === "teacher@college.com" && password === "teacher123") {
+          localStorage.setItem("token", "dummy-token");
           navigate("/teacher");
         } else {
           setError("Invalid teacher credentials. Please try again.");
@@ -37,6 +38,9 @@ function Login() {
     } else {
       try {
         const res = await axios.post(`${API_BASE}/api/students/login`, { email, password });
+        localStorage.setItem("token", res.data.token);
+    localStorage.setItem("studentId", res.data.id);
+    localStorage.setItem("studentName", res.data.name);
         const s = res.data;
         store("studentId",      s.id);
         store("studentName",    s.name);
