@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "../styles.css";
+import { useCallback } from "react";
 
 const STATUS_STEPS = ["SUBMITTED", "UNDER_REVIEW", "EVALUATED"];
 
@@ -133,7 +134,7 @@ function MyProjects() {
     setTimeout(() => setToast(null), 3000);
   };
 
-const fetchProjects = async () => {
+const fetchProjects = useCallback(async () => {
   setLoading(true);
   try {
     const res = await axios.get(`${API_BASE}/api/projects/student/${studentId}`);
@@ -143,12 +144,12 @@ const fetchProjects = async () => {
   } finally {
     setLoading(false);
   }
-};
+}, [studentId]);
 
-// ✅ Single useEffect is enough
+
 useEffect(() => {
   fetchProjects();
-}, []);
+}, [fetchProjects]);
 
 
 

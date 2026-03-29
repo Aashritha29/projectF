@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles.css";
+import { useCallback } from "react";
 
 function getBadge(status) {
   if (status === "SUBMITTED")    return <span className="badge badge-submitted">Submitted</span>;
@@ -61,23 +62,22 @@ function TeacherDashboard() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // ✅ fetchProjects declared before useEffect
-const fetchProjects = async () => {
+
+
+const fetchProjects = useCallback(async () => {
   setLoading(true);
   try {
-    const res = await axios.get(`${API_BASE}/api/projects`);
+    const res = await axios.get(`${API_BASE}/api/projects/student/${studentId}`);
     setProjects(res.data);
   } catch {
     showToast("Failed to load projects.", "error");
   } finally {
     setLoading(false);
   }
-};
-
+}, [studentId]);
 useEffect(() => {
   fetchProjects();
-}, []);
-
+}, [fetchProjects]);
 
 
   const markUnderReview = async (id) => {
