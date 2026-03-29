@@ -70,7 +70,7 @@ const fetchProjects = useCallback(async () => {
   try {
     const token = localStorage.getItem("token"); // ✅ added
 
-    const res = await axios.get(`${API_BASE}/api/projects/student/${studentId}`,
+    const res = await axios.get(`${API_BASE}/api/projects`,
       {
         headers: {
           Authorization: `Bearer ${token}`, // ✅ added
