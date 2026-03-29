@@ -75,7 +75,7 @@ const fetchProjects = useCallback(async () => {
   } finally {
     setLoading(false);
   }
-}, [studentId]);
+}, []);
 useEffect(() => {
   fetchProjects();
 }, [fetchProjects]);
